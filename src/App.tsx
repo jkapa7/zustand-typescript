@@ -1,35 +1,63 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+//ZUSTAND NO PIDE CREAR UN PROVIDER, SOLO SE NECESITA EL STORE
+import { useCounterStore } from "./store/counterStore";
+import { shallow } from "zustand/shallow";
+import { useEffect } from "react";
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  // EJECUTANDO LA FUNCION DEVUELVE TODO LO QUE TIENE EN EL ESTADO.
+  //ACA ESTOY DICIENDO, DE TODOS LOS DATOS QUE TIENES EN STATE, DEVUELVE STATE.COUNT. EN ESTE CASO ESTOY TRAYENDO VALORES ATOMICOS
+  // const count = useCounterStore((state) => state.count);
+  // const title = useCounterStore((state) => state.title);
+
+  //TAMBIEN PUEDO TRAERME EN UN OBJETO VARIAS COSAS DEL STATE, Y AL TRAERLAS EN UN OBJETO PUEDO CAMBIAR EL NOMBRE CON LAS QUE LAS VOY A GUARDAR
+  const values = useCounterStore(
+    (state) => ({
+      count: state.count,
+      title: state.title,
+      posts: state.posts,
+    }),
+    shallow
+  );
+
+  //ESTA ES UNA FORMA DE TRAERLO
+  // const incrementFunction = useCounterStore((state) => state.increment);
+
+  //ESTA TAMBIEN, EL USECOUNTERSTORE DEVULEVE TODO LO QUE TIENE, Y DESESTRUCTURO LO QUE QUIERO
+  const { incrementFunction, getPosts, multiply } = useCounterStore();
+
+  useEffect(() => {
+    getPosts();
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div>
+      <h1>
+        {values.title}: {values.count}
+      </h1>
 
-export default App
+      <button
+        onClick={() => {
+          incrementFunction(10);
+        }}
+      >
+        Increment by 10
+      </button>
+
+      <button
+        onClick={() => {
+          multiply(2);
+        }}
+      >
+        Multiply by 2
+      </button>
+
+      <section>
+        {values.posts.map((value) => (
+          <h4>{value.title}</h4>
+        ))}
+      </section>
+    </div>
+  );
+};
+
+export default App;
